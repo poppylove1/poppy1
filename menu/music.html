@@ -610,24 +610,20 @@
         let isRepeat = false;
         let isShuffle = false;
 
-        // ให้เล่นที่ระดับเสียงปกติ ผู้ใช้ปรับเสียงผ่านปุ่มของเครื่องเอง
         audio.volume = 1;
 
         const heartsEl = document.getElementById("hearts");
 
-        // จำนวนสติกเกอร์ทั้งหมดที่มีในโฟลเดอร์ img/stickers/ (sk1.png ... skN.png)
-        // ถ้ามีไฟล์มากกว่าหรือน้อยกว่านี้ ให้แก้เลขนี้ตามจริง
-        const STICKER_COUNT = 7;
-        const STICKER_PATH = "img/stickers/"; // path ไปยังโฟลเดอร์สติกเกอร์
-        const STICKER_EXT = ".png"; // ถ้าไฟล์เป็น .jpg / .webp ให้แก้ตรงนี้
+        const STICKER_COUNT = 6;
+        const STICKER_PATH = "img/stickers/"; 
+        const STICKER_EXT = ".png"; 
         const FALLBACK_SYMBOLS = ["💕", "🌸", "✨", "🎀", "💗", "🌷", "⭐", "💞"];
 
         function spawnHeart() {
             const el = document.createElement("div");
             el.className = "heart";
-            const size = 22 + Math.random() * 20;
+            const size = 45 + Math.random() * 30;
 
-            // สุ่มเลือกสติกเกอร์ 1 ใบจาก sk1..skN แบบสุ่มทุกครั้งที่ spawn
             const pick = Math.floor(Math.random() * STICKER_COUNT) + 1;
             const src = `${STICKER_PATH}sk${pick}${STICKER_EXT}`;
             const fallbackSymbol = FALLBACK_SYMBOLS[Math.floor(Math.random() * FALLBACK_SYMBOLS.length)];
@@ -644,7 +640,6 @@
             const img = document.createElement("img");
             img.src = src;
             img.alt = "";
-            // ถ้าโหลดรูปไม่ได้ (ไฟล์ไม่มี/พาทผิด) จะ fallback กลับไปเป็นอิโมจิแทน
             img.onerror = function () {
                 el.textContent = fallbackSymbol;
                 el.style.fontSize = size + "px";
@@ -655,7 +650,7 @@
             heartsEl.appendChild(el);
             setTimeout(() => el.remove(), 16000);
         }
-        setInterval(spawnHeart, 1800);
+        setInterval(spawnHeart, 750);
         spawnHeart();
 
         function fmt(s) {
