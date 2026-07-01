@@ -409,49 +409,6 @@
             font-family: 'Sarabun', sans-serif;
         }
 
-        .volume-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .vol-icon {
-            font-size: 14px;
-            color: var(--ink-lt);
-        }
-
-        .volume-bar {
-            -webkit-appearance: none;
-            appearance: none;
-            flex: 1;
-            height: 4px;
-            border-radius: 999px;
-            outline: none;
-            border: none;
-            cursor: pointer;
-            background: linear-gradient(to right, var(--lilac) 0%, var(--lilac) var(--vol-pct, 80%), #E8D8F5 var(--vol-pct, 80%));
-        }
-
-        .volume-bar::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: white;
-            border: 2.5px solid var(--lilac);
-            cursor: pointer;
-        }
-
-        .volume-bar::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: white;
-            border: 2.5px solid var(--lilac);
-            cursor: pointer;
-        }
-
         .link-btn {
             display: inline-flex;
             align-items: center;
@@ -627,10 +584,6 @@
                 <span id="duration">0:00</span>
             </div>
 
-            <div class="volume-row">
-                <span class="vol-icon" id="volIcon">🔊</span>
-                <input type="range" class="volume-bar" id="volume" value="80" min="0" max="100" autocomplete="off">
-            </div>
         </div>
 
         <button class="link-btn" onclick="location.href='../menu.html'">กลับหน้าเมนู</button>
@@ -649,38 +602,32 @@
         const vinyl = document.getElementById("vinyl");
         const needle = document.getElementById("needle");
         const progress = document.getElementById("progress");
-        const volSlide = document.getElementById("volume");
         const curTime = document.getElementById("currentTime");
         const durEl = document.getElementById("duration");
         const eqEl = document.getElementById("eq");
-        const volIcon = document.getElementById("volIcon");
 
         let isPlaying = false;
         let isRepeat = false;
         let isShuffle = false;
 
-        const VOL_KEY = "mlw_volume";
-        const savedVolRaw = localStorage.getItem(VOL_KEY);
-        const savedVol = savedVolRaw !== null ? parseInt(savedVolRaw, 10) : 80;
-
-        volSlide.value = savedVol;
-        audio.volume = savedVol / 100;
-        volSlide.style.setProperty("--vol-pct", savedVol + "%");
-        volIcon.textContent = savedVol === 0 ? "🔇" : savedVol < 40 ? "🔉" : "🔊";
+        // ให้เล่นที่ระดับเสียงปกติ ผู้ใช้ปรับเสียงผ่านปุ่มของเครื่องเอง
+        audio.volume = 1;
 
         const heartsEl = document.getElementById("hearts");
 
-       
-        const STICKER_COUNT = 6;
-        const STICKER_PATH = "img/stickers/"; 
-        const STICKER_EXT = ".png"; 
+        // จำนวนสติกเกอร์ทั้งหมดที่มีในโฟลเดอร์ img/stickers/ (sk1.png ... skN.png)
+        // ถ้ามีไฟล์มากกว่าหรือน้อยกว่านี้ ให้แก้เลขนี้ตามจริง
+        const STICKER_COUNT = 7;
+        const STICKER_PATH = "img/stickers/"; // path ไปยังโฟลเดอร์สติกเกอร์
+        const STICKER_EXT = ".png"; // ถ้าไฟล์เป็น .jpg / .webp ให้แก้ตรงนี้
         const FALLBACK_SYMBOLS = ["💕", "🌸", "✨", "🎀", "💗", "🌷", "⭐", "💞"];
 
         function spawnHeart() {
             const el = document.createElement("div");
             el.className = "heart";
-            const size = 45 + Math.random() * 30;
+            const size = 22 + Math.random() * 20;
 
+            // สุ่มเลือกสติกเกอร์ 1 ใบจาก sk1..skN แบบสุ่มทุกครั้งที่ spawn
             const pick = Math.floor(Math.random() * STICKER_COUNT) + 1;
             const src = `${STICKER_PATH}sk${pick}${STICKER_EXT}`;
             const fallbackSymbol = FALLBACK_SYMBOLS[Math.floor(Math.random() * FALLBACK_SYMBOLS.length)];
@@ -697,6 +644,7 @@
             const img = document.createElement("img");
             img.src = src;
             img.alt = "";
+            // ถ้าโหลดรูปไม่ได้ (ไฟล์ไม่มี/พาทผิด) จะ fallback กลับไปเป็นอิโมจิแทน
             img.onerror = function () {
                 el.textContent = fallbackSymbol;
                 el.style.fontSize = size + "px";
@@ -707,7 +655,7 @@
             heartsEl.appendChild(el);
             setTimeout(() => el.remove(), 16000);
         }
-        setInterval(spawnHeart, 750);
+        setInterval(spawnHeart, 1800);
         spawnHeart();
 
         function fmt(s) {
@@ -766,14 +714,6 @@
         });
         progress.addEventListener("input", () => {
             audio.currentTime = progress.value;
-        });
-
-        volSlide.addEventListener("input", () => {
-            const v = volSlide.value / 100;
-            audio.volume = v;
-            volSlide.style.setProperty("--vol-pct", volSlide.value + "%");
-            volIcon.textContent = v === 0 ? "🔇" : v < 0.4 ? "🔉" : "🔊";
-            localStorage.setItem(VOL_KEY, volSlide.value);
         });
 
         function toggleRepeat() {
