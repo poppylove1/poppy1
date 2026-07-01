@@ -134,6 +134,41 @@
             margin-bottom: 18px;
         }
 
+        .birthday-message {
+            display: none;
+            background: linear-gradient(135deg,
+                    rgba(255, 217, 102, 0.25),
+                    rgba(255, 179, 209, 0.3));
+            border: 2px dashed rgba(255, 140, 0, 0.35);
+            border-radius: 20px;
+            padding: 26px 18px;
+            margin-bottom: 18px;
+            animation: bdayPop 1.6s ease-in-out infinite;
+        }
+
+        .bday-emoji {
+            font-size: 34px;
+            margin-bottom: 6px;
+        }
+
+        .bday-text {
+            font-size: 26px;
+            font-weight: 600;
+            color: #E8709A;
+            margin-bottom: 6px;
+        }
+
+        .bday-sub {
+            font-size: 14px;
+            opacity: 0.75;
+            line-height: 1.7;
+        }
+
+        @keyframes bdayPop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+
         .btn {
             background-color: #8B7BAF;
             color: #FFFFFF;
@@ -191,6 +226,8 @@
             .time-box { padding: 8px 4px; min-width: 0; }
             .time-box h3 { font-size: clamp(11px, 3.5vw, 14px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .time-box p { font-size: 10px; }
+            .bday-text { font-size: 20px; }
+            .bday-emoji { font-size: 26px; }
         }
 
         @media (min-width: 361px) and (max-width: 480px) {
@@ -238,8 +275,8 @@
 
     <div class="card">
 
-        <div class="title">วันเกิดของเธอ</div>
-        <div class="subtitle">ตั้งแต่เธอเกิดมาจนถึงตอนนี้</div>
+        <div class="title" id="pageTitle">นับถอยหลังวันเกิดของเธอ</div>
+        <div class="subtitle" id="pageSubtitle">อีกไม่กี่วันก็จะถึงวันพิเศษของเธอแล้วนะ</div>
 
         <div class="cake-wrap">
             <div class="sparkle-emoji sp-1">✦</div>
@@ -341,14 +378,14 @@
             </svg>
         </div>
 
-        <div class="year-box">
-            <div class="year-label">เธอเกิดมาแล้ว</div>
+        <div class="year-box" id="yearBox">
+            <div class="year-label">อีกไม่นานเธอจะอายุครบ</div>
             <div class="year-number" id="years">0</div>
-            <div class="year-unit">ปีแห่งความน่ารัก</div>
+            <div class="year-unit">ปี</div>
         </div>
 
-        <div class="counter-box">
-            <div class="counter-title">นับเป็นเวลาทั้งหมด</div>
+        <div class="counter-box" id="counterBox">
+            <div class="counter-title">เหลือเวลาอีก</div>
             <div class="grid">
                 <div class="time-box">
                     <h3 id="days">0</h3>
@@ -369,29 +406,72 @@
             </div>
         </div>
 
+        <div class="birthday-message" id="birthdayMessage">
+            <div class="bday-emoji">🎉🎂🎉</div>
+            <div class="bday-text">สุขสันต์วันเกิดนะ!</div>
+            <div class="bday-sub">ขอให้วันนี้เป็นวันที่น่ารักและมีความสุขที่สุดสำหรับเธอเลย 💕</div>
+        </div>
+
         <button class="btn" onclick="location.href='../menu.html'">กลับหน้าเมนู</button>
     </div>
 
     <script>
         const birthDate = new Date("2009-04-11T00:00:00");
+        const birthMonth = birthDate.getMonth();
+        const birthDay = birthDate.getDate();
+
+        const yearBoxEl = document.getElementById("yearBox");
+        const counterBoxEl = document.getElementById("counterBox");
+        const birthdayMessageEl = document.getElementById("birthdayMessage");
+        const pageSubtitleEl = document.getElementById("pageSubtitle");
+
+        function isBirthdayToday(now) {
+            return now.getMonth() === birthMonth && now.getDate() === birthDay;
+        }
+
+        function getNextBirthday(now) {
+            let year = now.getFullYear();
+            let next = new Date(year, birthMonth, birthDay, 0, 0, 0);
+            if (next <= now) {
+                next = new Date(year + 1, birthMonth, birthDay, 0, 0, 0);
+            }
+            return next;
+        }
+
+        function showBirthdayCelebration() {
+            yearBoxEl.style.display = "none";
+            counterBoxEl.style.display = "none";
+            birthdayMessageEl.style.display = "block";
+            pageSubtitleEl.innerText = "วันนี้แหละ วันเกิดของเธอ!";
+        }
+
+        function hideBirthdayCelebration() {
+            yearBoxEl.style.display = "block";
+            counterBoxEl.style.display = "block";
+            birthdayMessageEl.style.display = "none";
+            pageSubtitleEl.innerText = "อีกไม่กี่วันก็จะถึงวันพิเศษของเธอแล้วนะ";
+        }
 
         function updateCounter() {
             const now = new Date();
-            const diff = now - birthDate;
 
-            let years = now.getFullYear() - birthDate.getFullYear();
-            const m = now.getMonth() - birthDate.getMonth();
-            if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) {
-                years--;
+            if (isBirthdayToday(now)) {
+                showBirthdayCelebration();
+                return;
             }
 
-            document.getElementById("years").innerText = years.toLocaleString('th-TH');
+            hideBirthdayCelebration();
 
-            const totalSec = Math.floor(diff / 1000);
+            const next = getNextBirthday(now);
+            const ageTurning = next.getFullYear() - birthDate.getFullYear();
+            document.getElementById("years").innerText = ageTurning.toLocaleString('th-TH');
+
+            const diff = next - now;
+            const totalSec = Math.max(0, Math.floor(diff / 1000));
             const days = Math.floor(totalSec / 86400);
-            const hours = Math.floor(totalSec / 3600);
-            const minutes = Math.floor(totalSec / 60);
-            const seconds = totalSec;
+            const hours = Math.floor((totalSec % 86400) / 3600);
+            const minutes = Math.floor((totalSec % 3600) / 60);
+            const seconds = totalSec % 60;
 
             document.getElementById("days").innerText = days.toLocaleString('th-TH');
             document.getElementById("hours").innerText = hours.toLocaleString('th-TH');
